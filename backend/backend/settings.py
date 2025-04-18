@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-@l5)qfgn_mbb!=0#3*pg=&7ffzbt$v@!_-7e3rd7xdf_kw_pq7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['chopchop-backend.onrender.com']
+ALLOWED_HOSTS = ['chopchop-backend.onrender.com', 'localhost', '127.0.0.1']
+
 
 
 # Application definition
