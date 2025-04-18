@@ -7,3 +7,4 @@ gunicorn
 whitenoise
 dj_database_url
 djangorestframework-simplejwt
+razorpay

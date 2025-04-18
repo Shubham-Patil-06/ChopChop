@@ -144,7 +144,7 @@ REST_FRAMEWORK = {
 RAZORPAY_KEY_ID = 'rzp_test_Zw1eDkJSlpYgEk'
 RAZORPAY_KEY_SECRET = 'XpfScrzlRi6SGDmiOQSXJWyl'
 # Fast2SMS API key (get it from https://www.fast2sms.com)
-FAST2SMS_API_KEY = "FOMXfZUXFbvtM2NXYuPfASqotJvaRCKFiumczwB47hVU99Up18zL7xJf9Ugm"
+#FAST2SMS_API_KEY = "FOMXfZUXFbvtM2NXYuPfASqotJvaRCKFiumczwB47hVU99Up18zL7xJf9Ugm"
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
