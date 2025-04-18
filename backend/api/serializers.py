@@ -74,18 +74,26 @@ class UserSerializer(serializers.ModelSerializer):
             return None
 
 class RegisterSerializer(serializers.ModelSerializer):
+    mobile = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username', 'email', 'password', 'mobile']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+        mobile = validated_data.pop('mobile', None)
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
             password=validated_data['password']
         )
+
+        # Save mobile in Address
+        if mobile:
+            Address.objects.create(user=user, mobile=mobile)
+
         return user
-    
+
 class PaymentOrderSerializer(serializers.Serializer):
     amount = serializers.IntegerField()  # in paisa
