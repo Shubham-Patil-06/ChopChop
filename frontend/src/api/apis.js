@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://chopchop-backend.onrender.com//api/", // change if needed
+  baseURL: "https://chopchop-backend.onrender.com/api/", // change if needed
 });
 
 API.interceptors.request.use((req) => {
