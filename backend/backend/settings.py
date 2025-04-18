@@ -76,6 +76,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 CORS_ALLOW_ALL_ORIGINS = True  # Dev only! Restrict in prod
 
+CORS_ALLOWED_ORIGINS = [
+    "https://chopchopfooddelivery.netlify.app/" # ✅ Replace with your actual Netlify URL
+]
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
