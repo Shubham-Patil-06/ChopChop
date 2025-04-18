@@ -10,9 +10,10 @@ export default function Signup() {
     const [form, setForm] = useState({
         username: "",
         email: "",
-        password: "",
-        mobile: ""
+        mobile: "",
+        password: ""
     });
+
     const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
@@ -23,11 +24,11 @@ export default function Signup() {
         e.preventDefault();
         try {
             await register(form);
-            alert("✅ Account created successfully!");
+            alert("✅ Account created and logged in!");
             navigate("/");
         } catch (err) {
-            console.error(err);
-            alert("❌ Signup failed. Please try again.");
+            console.error("❌ Signup error:", err);
+            alert("Signup failed. Please try again.");
         }
     };
 

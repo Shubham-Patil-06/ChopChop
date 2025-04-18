@@ -34,6 +34,13 @@ export const AuthProvider = ({ children }) => {
         await fetchUser();
     };
 
+    const register = async (formData) => {
+        const res = await API.post("signup/", formData);
+        const token = res.data.token || res.data.access;
+        localStorage.setItem("chopchop-token", token);
+        await fetchUser();
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem("chopchop-token");
@@ -44,6 +51,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         logout,
+        register, // ✅ Added this line
     };
 
     return (
