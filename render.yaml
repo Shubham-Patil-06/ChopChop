@@ -1,0 +1,12 @@
+# Exported from Render on 2025-04-18T11:51:32Z
+databases:
+- name: chopchop_admin
+  databaseName: chopchop_db
+  user: chopchop_user
+  plan: free
+  region: virginia
+  ipAllowList:
+  - source: 0.0.0.0/0
+    description: everywhere
+  postgresMajorVersion: "14"
+version: "1"
