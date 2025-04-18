@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/api': 'https://chopchop-backend.onrender.com/',
+      '/api': 'https://chopchop-backend.onrender.com/api/',
     },
   }
   
