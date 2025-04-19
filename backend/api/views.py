@@ -7,8 +7,7 @@ from django.conf import settings
 from .models import MenuItem, CartItem, Order, OrderItem, Address, OTP, Category
 from .serializers import (
     EmailOTPSerializer, LoginSerializer, MenuItemSerializer, CartItemSerializer, OrderSerializer,
-    AddressSerializer, UserSerializer, RegisterSerializer,
-    PaymentOrderSerializer
+    AddressSerializer, UserSerializer, RegisterSerializer, EmailOnlySerializer,    PaymentOrderSerializer
 )
 import random
 import razorpay
