@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅
 import API from "../api/apis";
+import { useAuth } from "../context/AuthContext";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Login() {
-    const { login } = useAuth(); // ✅ use context login
-    const [mode, setMode] = useState("password");
-    const [form, setForm] = useState({ username: "", email: "", password: "", otp: "" });
+    const { fetchUser } = useAuth();
+    const navigate = useNavigate();
+
+    const [mode, setMode] = useState("password"); // "password" or "otp"
+    const [form, setForm] = useState({
+        username: "",
+        password: "",
+        email: "",
+        otp: ""
+    });
+    const [showPassword, setShowPassword] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
     const [countdown, setCountdown] = useState(0);
-    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,16 +38,17 @@ export default function Login() {
 
     const sendOTP = async () => {
         if (!form.email || !form.email.includes("@")) {
-            alert("📧 Enter a valid email address");
+            alert("📧 Enter a valid email");
             return;
         }
 
         try {
             await API.post("send-otp/", { email: form.email });
-            setOtpSent(true);
             alert("✅ OTP sent to your email");
+            setOtpSent(true);
             startCountdown();
-        } catch {
+        } catch (err) {
+            console.error("❌ Failed to send OTP:", err.response?.data || err.message);
             alert("❌ Failed to send OTP");
         }
     };
@@ -49,13 +58,15 @@ export default function Login() {
         try {
             const res = await API.post("verify-otp/", {
                 email: form.email,
-                otp: form.otp,
+                otp: form.otp
             });
+
             localStorage.setItem("chopchop-token", res.data.token);
-            await login(); // ✅ fetch user after OTP login
-            // alert("✅ Logged in via OTP!");
+            await fetchUser();
+            alert("✅ Logged in via OTP!");
             navigate("/");
-        } catch {
+        } catch (err) {
+            console.error("❌ OTP login failed:", err.response?.data || err.message);
             alert("❌ Invalid OTP");
         }
     };
@@ -63,19 +74,26 @@ export default function Login() {
     const handlePasswordLogin = async (e) => {
         e.preventDefault();
         try {
-            await login(form.username, form.password); // ✅ use context login
-            // alert("✅ Logged in!");
+            const res = await API.post("login/", {
+                username: form.username,
+                password: form.password
+            });
+
+            localStorage.setItem("chopchop-token", res.data.access);
+            await fetchUser();
+            alert("✅ Logged in!");
             navigate("/");
-        } catch {
+        } catch (err) {
+            console.error("❌ Password login failed:", err.response?.data || err.message);
             alert("❌ Invalid username or password");
         }
     };
 
     return (
-        <div className="min-h-screen bg-[url('/images/bg-food.jpg')] bg-cover flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[url('/images/bg-food.jpg')] bg-cover flex items-center justify-center px-4">
             <form
                 onSubmit={mode === "otp" ? handleOTPLogin : handlePasswordLogin}
-                className="bg-white p-8 rounded-xl shadow w-full max-w-md space-y-5"
+                className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md space-y-6"
             >
                 <h2 className="text-2xl font-bold text-center text-red-500">Login to ChopChop</h2>
 
@@ -90,15 +108,23 @@ export default function Login() {
                             required
                             className="w-full p-3 border rounded-md focus:ring-2 focus:ring-red-400"
                         />
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                            value={form.password}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-red-400"
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                placeholder="Password"
+                                value={form.password}
+                                onChange={handleChange}
+                                required
+                                className="w-full p-3 border rounded-md focus:ring-2 focus:ring-red-400"
+                            />
+                            <span
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
+                        </div>
                     </>
                 ) : (
                     <>
@@ -118,8 +144,8 @@ export default function Login() {
                                 placeholder="Enter OTP"
                                 value={form.otp}
                                 onChange={handleChange}
-                                required
                                 className="w-full p-3 border rounded-md focus:ring-2 focus:ring-red-400"
+                                required
                             />
                         )}
                         <button
@@ -139,20 +165,17 @@ export default function Login() {
                     </>
                 )}
 
-                <button
-                    type="submit"
-                    className="bg-red-500 hover:bg-red-600 text-white py-3 rounded-md w-full"
-                >
+                <button className="bg-red-500 hover:bg-red-600 text-white py-3 rounded-md w-full font-medium">
                     {mode === "password" ? "Login with Password" : "Login with OTP"}
                 </button>
 
-                <p className="text-sm text-gray-600 text-center">
+                <p className="text-sm text-center text-gray-600">
                     {mode === "password" ? (
                         <>
                             Prefer OTP?{" "}
                             <span
                                 onClick={() => setMode("otp")}
-                                className="text-red-500 font-medium cursor-pointer"
+                                className="text-red-500 cursor-pointer font-medium"
                             >
                                 Login via OTP
                             </span>
@@ -162,7 +185,7 @@ export default function Login() {
                             Have a password?{" "}
                             <span
                                 onClick={() => setMode("password")}
-                                className="text-red-500 font-medium cursor-pointer"
+                                className="text-red-500 cursor-pointer font-medium"
                             >
                                 Use Password
                             </span>
@@ -170,7 +193,7 @@ export default function Login() {
                     )}
                 </p>
 
-                <p className="text-center text-gray-400 text-sm">
+                <p className="text-center text-gray-500 text-sm">
                     Don’t have an account?{" "}
                     <Link to="/signup" className="text-red-500 font-medium">
                         Sign up
@@ -180,5 +203,3 @@ export default function Login() {
         </div>
     );
 }
-
-

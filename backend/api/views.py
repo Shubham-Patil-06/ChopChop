@@ -56,7 +56,7 @@ class LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         user = authenticate(
-            username=serializer.validated_data["email"],
+            username=serializer.validated_data["username"],
             password=serializer.validated_data["password"]
         )
 
@@ -67,7 +67,12 @@ class LoginView(generics.GenericAPIView):
         return Response({
             "access": str(refresh.access_token),
             "refresh": str(refresh),
+            "user": {
+                "username": user.username,
+                "email": user.email
+            }
         })
+
 
 class UserProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]

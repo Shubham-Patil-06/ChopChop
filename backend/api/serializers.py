@@ -12,10 +12,11 @@ class EmailOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(max_length=6)
 
+# serializers.py
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
-    email = serializers.EmailField()
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
