@@ -13,28 +13,28 @@ const sound = new Howl({
 const sampleItems = [
     {
         name: "Spicy Ramen",
-        image: "https://source.unsplash.com/featured/?ramen",
+        image: "/images/spicy_ramen.avif",
         price: 12.99,
         description: "Delicious spicy ramen with rich broth.",
         category: "Noodles",
     },
     {
         name: "Sushi Platter",
-        image: "https://source.unsplash.com/featured/?sushi",
+        image: "/images/sushi.avif",
         price: 18.49,
         description: "Fresh assorted sushi with wasabi and soy.",
         category: "Sushi",
     },
     {
         name: "Cheeseburger",
-        image: "https://source.unsplash.com/featured/?burger",
+        image: "/images/burger.png",
         price: 9.99,
         description: "Juicy beef patty with melted cheese.",
         category: "Burger"
     },
     {
         name: "Veggie Noodles",
-        image: "https://source.unsplash.com/featured/?noodles",
+        image: "/images/veggies_noodles.avif",
         price: 10.49,
         description: "Healthy veggie-packed noodles.",
         category: "Noodles"
