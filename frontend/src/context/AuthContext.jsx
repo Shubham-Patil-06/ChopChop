@@ -34,10 +34,9 @@ export const AuthProvider = ({ children }) => {
         await fetchUser();
     };
 
-    const register = async (formData) => {
-        const res = await API.post("signup/", formData);
-        const token = res.data.token || res.data.access;
-        localStorage.setItem("chopchop-token", token);
+    const register = async (userData) => {
+        const res = await API.post("signup/", userData);
+        localStorage.setItem("chopchop-token", res.data.access);
         await fetchUser();
     };
 
@@ -50,8 +49,9 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         login,
+        register,
         logout,
-        register, // ✅ Added this line
+        fetchUser, // ✅ Add this to fix `n is not a function`
     };
 
     return (
