@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // ✅
 import API from "../api/apis";
 
 export default function Login() {
-    const [mode, setMode] = useState("password"); // 'otp' or 'password'
+    const { login } = useAuth(); // ✅ use context login
+    const [mode, setMode] = useState("password");
     const [form, setForm] = useState({ username: "", email: "", password: "", otp: "" });
     const [otpSent, setOtpSent] = useState(false);
     const [countdown, setCountdown] = useState(0);
@@ -37,7 +39,7 @@ export default function Login() {
             setOtpSent(true);
             alert("✅ OTP sent to your email");
             startCountdown();
-        } catch (err) {
+        } catch {
             alert("❌ Failed to send OTP");
         }
     };
@@ -50,7 +52,8 @@ export default function Login() {
                 otp: form.otp,
             });
             localStorage.setItem("chopchop-token", res.data.token);
-            alert("✅ Logged in via OTP!");
+            await login(); // ✅ fetch user after OTP login
+            // alert("✅ Logged in via OTP!");
             navigate("/");
         } catch {
             alert("❌ Invalid OTP");
@@ -60,12 +63,8 @@ export default function Login() {
     const handlePasswordLogin = async (e) => {
         e.preventDefault();
         try {
-            const res = await API.post("login/", {
-                username: form.username,
-                password: form.password,
-            });
-            localStorage.setItem("chopchop-token", res.data.access);
-            alert("✅ Logged in!");
+            await login(form.username, form.password); // ✅ use context login
+            // alert("✅ Logged in!");
             navigate("/");
         } catch {
             alert("❌ Invalid username or password");
@@ -181,3 +180,5 @@ export default function Login() {
         </div>
     );
 }
+
+
