@@ -36,7 +36,7 @@ export default function MenuCard({ name, image, price, description, onCardClick 
                 <p className="text-gray-600 text-sm mt-1 line-clamp-3">{description}</p>
 
                 <div className="mt-4 flex justify-between items-center">
-                    <span className="text-red-500 font-bold text-lg">${price}</span>
+                    <span className="text-red-500 font-bold text-lg">Rs.{price}</span>
                     <motion.button
                         whileTap={{ scale: 0.9 }}
                         onClick={() => addToCart({ name, image, price, description })}
