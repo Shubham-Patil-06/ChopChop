@@ -225,7 +225,7 @@ class VerifyOTPView(generics.GenericAPIView):
         otp_code = serializer.validated_data["otp"]
 
         try:
-            user = User.objects.get(username=email)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response({"error": "User not found."}, status=404)
 
