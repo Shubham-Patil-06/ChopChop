@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenBlacklistView
 )
-from .views import CreatePaymentOrderView, SendOTPView, SignupView, UserProfileView, MenuListView, CartItemView, OrderView, AddressView, VerifyOTPView
+from .views import PaymentView, SendOTPView, SignupView, UserProfileView, MenuListView, CartItemView, OrderView, AddressView, VerifyOTPView
 
 urlpatterns = [
     path('signup/', SignupView.as_view(), name='auth_register'),
@@ -16,7 +16,7 @@ urlpatterns = [
     path('cart/', CartItemView.as_view()),
     path('orders/', OrderView.as_view()),
     path('address/', AddressView.as_view()),
-    path("payment/", CreatePaymentOrderView.as_view()),
+    path("payment/", PaymentView.as_view()),
     path('send-otp/', SendOTPView.as_view(), name='send-otp'),
     path('verify-otp/', VerifyOTPView.as_view(), name='verify-otp'),
 

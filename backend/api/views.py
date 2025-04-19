@@ -15,6 +15,7 @@ import razorpay
 import requests
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 def generate_otp():
@@ -140,16 +141,27 @@ class AddressView(generics.ListCreateAPIView):
 
 
 # ✅ Razorpay Integration
-class CreatePaymentOrderView(APIView):
-    def post(self, request):
-        serializer = PaymentOrderSerializer(data=request.data)
-        if serializer.is_valid():
-            amount = serializer.validated_data['amount']
-            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-            payment = client.order.create({'amount': amount, 'currency': 'INR', 'payment_capture': 1})
-            return Response(payment)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class PaymentView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        amount = request.data.get("amount")
+
+        if not amount:
+            return Response({"error": "Amount is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            data = {
+                "amount": int(amount),
+                "currency": "INR",
+                "payment_capture": 1,
+            }
+            order = client.order.create(data=data)
+            return Response(order, status=status.HTTP_200_OK)
+        except Exception as e:
+            print("❌ Razorpay Error:", e)
+            return Response({"error": "Payment initiation failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # views.py
 
