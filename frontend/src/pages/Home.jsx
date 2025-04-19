@@ -2,159 +2,146 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 const categories = [
-    { name: "🍕 Pizza", img: "/images/pizza.avif" },
-    { name: "🍛 Biryani", img: "/images/biryani.png" },
-    { name: "🍔 Burgers", img: "/images/burger.png" },
-    { name: "🍩 Desserts", img: "/images/Dessert.png" },
+    { name: "Pizza", img: "/images/pizza.avif" },
+    { name: "Biryani", img: "/images/biryani.png" },
+    { name: "Burgers", img: "/images/burger.png" },
+    { name: "Desserts", img: "/images/Dessert.png" },
 ];
 
 const topCategories = [
-    { name: "🥡 Chinese", img: "/images/chinese.png" },
-    { name: "🍛 South Indian", img: "/images/south_indian.jpg" },
-    { name: "🍲 North Indian", img: "/images/north_indian.jpg" },
-    { name: "🌭 Fast Food", img: "/images/fastfood.jpg" },
+    { name: "Chinese", img: "/images/chinese.png" },
+    { name: "South Indian", img: "/images/south_indian.jpg" },
+    { name: "North Indian", img: "/images/north_indian.jpg" },
+    { name: "Fast Food", img: "/images/fastfood.jpg" },
 ];
-
-const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (i) => ({
-        opacity: 1,
-        y: 0,
-        transition: { delay: i * 0.1, duration: 0.6 },
-    }),
-};
 
 export default function Home() {
     const { user, loading } = useAuth();
     const { cart } = useCart();
+    const [darkMode, setDarkMode] = useState(false);
+
+    useEffect(() => {
+        document.body.className = darkMode ? "dark bg-gray-900 text-white" : "bg-white text-gray-800";
+    }, [darkMode]);
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <p className="text-lg text-gray-600 animate-pulse">Loading your personalized menu...</p>
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-lg animate-pulse font-semibold text-red-500">Cooking up something delicious...</p>
             </div>
         );
     }
 
-    if (!user) {
-        return (
-            <div className="min-h-screen bg-white">
-                <section className="bg-[url('/images/bg-food.jpg')] bg-cover bg-center text-white py-24 px-6 text-center">
+    const headerTextClass = "text-4xl md:text-5xl font-bold mb-4 font-[Chewy]";
+
+    return (
+        <div className={`min-h-screen px-6 py-10 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50"}`}>
+            {/* 🌗 Theme Toggle */}
+            <div className="text-right mb-4">
+                <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition">
+                    {darkMode ? "☀️ Light" : "🌙 Dark"}
+                </button>
+            </div>
+
+            {!user ? (
+                // 👤 Before Login
+                <section className="text-center">
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl font-bold mb-4 drop-shadow"
+                        className={headerTextClass + " text-red-500"}
                     >
-                        🍽️ Craving something delicious?
+                        Craving something tasty?
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="text-xl drop-shadow"
+                        className="text-xl mb-6"
                     >
-                        Discover the best food in your city with <span className="text-yellow-300 font-bold">ChopChop</span>.
+                        Discover and order your favorite food with ChopChop.
                     </motion.p>
-                    <div className="mt-6 space-x-4">
-                        <Link to="/signup" className="bg-white text-red-500 px-6 py-3 rounded-full font-semibold shadow hover:bg-red-100">
+                    <div className="space-x-4">
+                        <Link to="/signup" className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full font-medium transition shadow">
                             Sign Up
                         </Link>
-                        <Link to="/login" className="border border-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-red-500">
+                        <Link to="/login" className="border border-red-500 text-red-500 px-6 py-3 rounded-full font-medium hover:bg-red-100 transition">
                             Log In
                         </Link>
                     </div>
                 </section>
+            ) : (
+                // ✅ After Login
+                <>
+                    <motion.h2
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={headerTextClass}
+                    >
+                        🍽️ Welcome, {user.username || "Foodie"}!
+                    </motion.h2>
+                    <p className="mb-6 text-lg">Let’s make your cravings count.</p>
 
-                <section className="py-16 px-6 text-center bg-gray-50">
-                    <h2 className="text-3xl font-bold text-gray-800 mb-6">🍽️ Explore Food by Category</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                        {categories.map((cat, i) => (
+                    {/* Stats */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+                        {[
+                            { label: "Total Orders", value: user.orders_count || 0 },
+                            { label: "Cart Items", value: cart.length || 0 },
+                            { label: "Favorites", value: user.favorites_count || 0 },
+                        ].map((stat, i) => (
                             <motion.div
-                                custom={i}
-                                variants={fadeInUp}
-                                initial="hidden"
-                                animate="visible"
-                                key={cat.name}
-                                className="bg-white rounded-xl overflow-hidden shadow-lg hover:scale-105 hover:shadow-xl transition transform duration-300"
+                                key={stat.label}
+                                className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md text-center"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.2 }}
                             >
-                                <img src={cat.img} alt={cat.name} className="w-full h-32 object-cover" />
-                                <div className="p-4 font-semibold text-gray-700">{cat.name}</div>
+                                <p className="text-gray-500 dark:text-gray-300">{stat.label}</p>
+                                <p className="text-2xl font-semibold text-red-500">{stat.value}</p>
                             </motion.div>
                         ))}
                     </div>
-                </section>
-            </div>
-        );
-    }
+                </>
+            )}
 
-    return (
-        <div className="min-h-screen bg-gray-50 px-6 py-10">
-            <motion.h2
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-3xl font-bold text-red-500 mb-1"
-            >
-                🍔 Welcome back, {user.username || user.name || "Foodie"}!
-            </motion.h2>
-            <p className="text-gray-600 mb-6">
-                {user.email ? `Logged in as ${user.email}` : "Let’s eat something amazing!"}
-            </p>
-
-            {/* STATS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
-                {[{ label: "Total Orders", value: user.orders_count || 0 },
-                  { label: "Cart Items", value: cart.length || 0 },
-                  { label: "Favorites", value: user.favorites_count || 0 }]
-                .map((stat, i) => (
-                    <motion.div
-                        key={stat.label}
-                        custom={i}
-                        variants={fadeInUp}
-                        initial="hidden"
-                        animate="visible"
-                        className="bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition transform hover:-translate-y-1"
-                    >
-                        <p className="text-gray-500">{stat.label}</p>
-                        <p className="text-2xl font-bold text-red-500">{stat.value}</p>
-                    </motion.div>
-                ))}
-            </div>
-
-            {/* TOP CATEGORIES */}
-            <section className="mb-10">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">🔥 Trending Now</h3>
+            {/* 🔥 Categories */}
+            <section>
+                <h3 className="text-3xl font-bold mb-4 font-[Chewy] text-red-400">Popular Cravings</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {topCategories.map((cat, i) => (
+                    {categories.map((cat, i) => (
                         <motion.div
                             key={cat.name}
-                            custom={i}
-                            variants={fadeInUp}
-                            initial="hidden"
-                            animate="visible"
-                            className="bg-white rounded-xl overflow-hidden shadow-md hover:scale-105 hover:shadow-xl transition"
+                            whileHover={{ scale: 1.05 }}
+                            className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow hover:shadow-lg text-center"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.15 }}
                         >
-                            <img src={cat.img} alt={cat.name} className="w-full h-32 object-cover" />
-                            <div className="p-3 text-center font-semibold text-gray-700">{cat.name}</div>
+                            <img src={cat.img} alt={cat.name} className="w-full h-32 object-cover rounded-md" />
+                            <p className="mt-2 font-semibold text-red-500">{cat.name}</p>
                         </motion.div>
                     ))}
                 </div>
             </section>
 
-            {/* CTA */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white p-8 rounded-2xl text-center shadow"
-            >
-                <h4 className="text-xl font-semibold mb-2 text-gray-800">😋 Hungry already?</h4>
-                <p className="text-gray-600 mb-4">Browse our full menu and start ordering!</p>
-                <Link to="/menu" className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition">
-                    Browse Menu
-                </Link>
-            </motion.div>
+            {/* 🎉 CTA */}
+            {user && (
+                <motion.div
+                    className="mt-10 p-8 rounded-2xl text-center shadow-lg bg-gradient-to-r from-red-500 to-pink-500 text-white"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                >
+                    <h4 className="text-2xl font-semibold mb-2">Hungry already?</h4>
+                    <p className="mb-4">Browse our delicious menu and start your feast 🍜</p>
+                    <Link to="/menu" className="bg-white text-red-500 px-6 py-2 rounded-lg hover:bg-red-100 transition font-semibold">
+                        Browse Menu
+                    </Link>
+                </motion.div>
+            )}
         </div>
     );
 }
