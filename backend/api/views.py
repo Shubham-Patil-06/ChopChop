@@ -179,25 +179,31 @@ class SendOTPView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data["email"]
 
-        # 🔎 Look up user by email
-        user = User.objects.filter(email=email).first()
-
-        # 🔨 If not found, create a new one
-        if not user:
-            user = User.objects.create_user(
-                username=email,  # still required
-                email=email,
-                password=None  # optional: no password for OTP-only users
+        # ✅ Try to fetch by email
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # If not found, create a new user with email and random username
+            base_username = email.split('@')[0]
+            i = 1
+            while User.objects.filter(username=base_username).exists():
+                base_username = f"{base_username}{i}"
+                i += 1
+            user = User.objects.create(
+                username=base_username,
+                email=email
             )
+            user.set_unusable_password()
+            user.save()
 
-        # 🔢 Generate OTP
+        # ✅ Generate OTP
         otp_code = str(random.randint(100000, 999999))
-
         OTP.objects.update_or_create(
             user=user,
-            defaults={"code": otp_code}
+            defaults={"code": otp_code, "phone": ""}
         )
 
+        # ✅ Send OTP
         send_mail(
             subject="Your ChopChop OTP",
             message=f"Your OTP is: {otp_code}",
@@ -206,8 +212,7 @@ class SendOTPView(generics.GenericAPIView):
         )
 
         return Response({"message": "OTP sent successfully."}, status=200)
-
-
+    
 # ✅ Verify OTP
 class VerifyOTPView(generics.GenericAPIView):
     serializer_class = EmailOTPSerializer
