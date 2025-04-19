@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo "📦 Installing dependencies..."
+pip install -r requirements.txt
+
 echo "📦 Running Django migrations..."
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput
