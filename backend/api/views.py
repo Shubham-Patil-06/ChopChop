@@ -17,8 +17,8 @@ from django.core.mail import send_mail
 from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
-def generate_otp():
-    return str(random.randint(100000, 999999))
+# def generate_otp():
+#     return str(random.randint(100000, 999999))
 
 # # ✅ SMS sending via Fast2SMS
 # def send_sms_otp(phone, otp_code):
