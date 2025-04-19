@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-@l5)qfgn_mbb!=0#3*pg=&7ffzbt$v@!_-7e3rd7xdf_kw_pq7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['chopchop-backend.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
 
 
@@ -77,15 +77,20 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 CORS_ALLOW_ALL_ORIGINS = True  # Dev only! Restrict in prod
 
 CORS_ALLOWED_ORIGINS = [
-    "https://chopchopfooddelivery.netlify.app/" # ✅ Replace with your actual Netlify URL
+    "https://chopchopfooddelivery.netlify.app" # ✅ Replace with your actual Netlify URL
 ]
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
-}
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    }
+else:
+    raise Exception("❌ DATABASE_URL is not set!")
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
