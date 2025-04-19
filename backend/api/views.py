@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 from .models import MenuItem, CartItem, Order, OrderItem, Address, OTP, Category
 from .serializers import (
-    LoginSerializer, MenuItemSerializer, CartItemSerializer, OrderSerializer,
+    EmailOTPSerializer, LoginSerializer, MenuItemSerializer, CartItemSerializer, OrderSerializer,
     AddressSerializer, UserSerializer, RegisterSerializer,
     PaymentOrderSerializer
 )
@@ -168,11 +168,10 @@ class PaymentView(APIView):
             print("❌ Razorpay Error:", e)
             return Response({"error": "Payment initiation failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# views.py
 
-from .serializers import EmailOnlySerializer, EmailOTPSerializer
+#from .serializers import EmailOnlySerializer, EmailOTPSerializer
 
-# ✅ Send OTP
+# ✅ Send OTP via email safely
 class SendOTPView(generics.GenericAPIView):
     serializer_class = EmailOnlySerializer
 
@@ -181,10 +180,24 @@ class SendOTPView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data["email"]
 
-        user, _ = User.objects.get_or_create(username=email, defaults={"email": email})
+        # 🔎 Look up user by email
+        user = User.objects.filter(email=email).first()
 
-        otp_code = generate_otp()
-        OTP.objects.update_or_create(user=user, defaults={"code": otp_code})
+        # 🔨 If not found, create a new one
+        if not user:
+            user = User.objects.create_user(
+                username=email,  # still required
+                email=email,
+                password=None  # optional: no password for OTP-only users
+            )
+
+        # 🔢 Generate OTP
+        otp_code = str(random.randint(100000, 999999))
+
+        OTP.objects.update_or_create(
+            user=user,
+            defaults={"code": otp_code}
+        )
 
         send_mail(
             subject="Your ChopChop OTP",
@@ -193,7 +206,7 @@ class SendOTPView(generics.GenericAPIView):
             recipient_list=[email],
         )
 
-        return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
+        return Response({"message": "OTP sent successfully."}, status=200)
 
 
 # ✅ Verify OTP
