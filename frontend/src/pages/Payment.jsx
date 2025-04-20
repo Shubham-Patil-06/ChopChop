@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../api/apis";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { motion } from "framer-motion";
 
 export default function PaymentPage() {
     const { cart, clearCart } = useCart();
@@ -31,7 +32,7 @@ export default function PaymentPage() {
         const res = await API.post("payment/", { amount });
 
         const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY_ID, // ✅ Use from .env
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
             amount: res.data.amount,
             currency: "INR",
             name: "ChopChop",
@@ -51,7 +52,7 @@ export default function PaymentPage() {
 
                     alert("✅ Order placed successfully!");
                     clearCart();
-                    window.location.href = "/orders"; // or dashboard
+                    window.location.href = "/orders";
                 } catch (err) {
                     console.error("Order placement failed:", err);
                     alert("❌ Payment went through but order save failed.");
@@ -72,24 +73,62 @@ export default function PaymentPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <h2 className="text-2xl font-bold mb-4">Confirm & Pay</h2>
-            <ul className="mb-6 space-y-2">
-                {cart.map((item) => (
-                    <li key={item.name} className="flex justify-between">
-                        <span>{item.name} × {item.qty}</span>
-                        <span>₹{item.price * item.qty}</span>
-                    </li>
-                ))}
-            </ul>
-            <div className="text-xl font-bold mb-6">Total: ₹{total.toFixed(2)}</div>
-            <button
-                onClick={handlePayment}
-                className="bg-red-500 text-white px-6 py-3 rounded-md hover:bg-red-600"
-                disabled={loading}
+        <div className="min-h-screen bg-gradient-to-br from-red-50 to-yellow-100 p-6">
+            <motion.h1
+                className="text-4xl font-extrabold text-center text-red-600 mb-10"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
             >
-                {loading ? "Processing..." : "Pay with Razorpay"}
-            </button>
+                💳 Checkout & Payment
+            </motion.h1>
+
+            <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg space-y-6">
+                <motion.div
+                    className="space-y-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <h2 className="text-xl font-bold text-gray-700 mb-3">🧾 Order Details</h2>
+                    {cart.map((item, i) => (
+                        <div key={i} className="flex justify-between items-center">
+                            <div className="text-gray-700">
+                                {item.name} × {item.qty}
+                            </div>
+                            <div className="font-semibold text-red-500">
+                                ₹{(item.price * item.qty).toFixed(2)}
+                            </div>
+                        </div>
+                    ))}
+                </motion.div>
+
+                <motion.div
+                    className="text-right text-xl font-bold text-green-600"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                >
+                    Total: ₹{total.toFixed(2)}
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-center"
+                >
+                    <button
+                        onClick={handlePayment}
+                        className={`px-8 py-3 rounded-full text-white text-lg font-semibold shadow-lg transition ${
+                            loading ? "bg-gray-400" : "bg-red-500 hover:bg-red-600"
+                        }`}
+                        disabled={loading}
+                    >
+                        {loading ? "Processing..." : "Pay with Razorpay 🛍️"}
+                    </button>
+                </motion.div>
+            </div>
         </div>
     );
 }
