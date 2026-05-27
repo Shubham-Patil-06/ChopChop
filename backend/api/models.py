@@ -62,7 +62,7 @@ class CartItem(models.Model):
 
 
     def __str__(self):
-        return f"{self.quantity} x {self.item.name}"
+        return f"{self.quantity} x {self.menu_item.name}"
 
 class OTP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

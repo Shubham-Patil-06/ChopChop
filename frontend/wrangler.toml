@@ -1,0 +1,10 @@
+name = "chopchop"
+compatibility_date = "2024-01-01"
+
+[env.production]
+# No worker — this is a static Cloudflare Pages site.
+# Build settings are configured in the Cloudflare Pages dashboard:
+#   Framework preset : None (or Vite)
+#   Build command    : npm run build
+#   Build output dir : dist
+#   Root directory   : frontend

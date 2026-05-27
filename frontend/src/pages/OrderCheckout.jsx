@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function OrderCheckout() {
-    const { cart, setCart } = useCart();
+    const { cart } = useCart();
     const { user } = useAuth();
     const [address, setAddress] = useState(() => localStorage.getItem("chopchop-address") || "");
     const navigate = useNavigate();

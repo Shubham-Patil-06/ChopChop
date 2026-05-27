@@ -7,3 +7,8 @@ build/
 dist/
 *.sqlite3
 *.log
+
+# Environment — never commit secrets
+.env
+frontend/.env
+backend/.env

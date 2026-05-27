@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
+set -e
 
-echo "📦 Installing dependencies..."
+echo "Installing dependencies..."
 pip install -r requirements.txt
 
-echo "📦 Running Django migrations..."
+echo "Running migrations..."
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput
 
-echo "👤 Creating superuser if not exists..."
-echo "
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
+
+echo "Creating superuser if not exists..."
+python manage.py shell <<'EOF'
 from django.contrib.auth import get_user_model
 import os
 
@@ -19,7 +23,7 @@ password = os.environ.get('SUPERUSER_PASSWORD', 'adminpass')
 
 if not User.objects.filter(username=username).exists():
     User.objects.create_superuser(username, email, password)
-    print('✅ Superuser created')
+    print('Superuser created')
 else:
-    print('ℹ️ Superuser already exists')
-" | python manage.py shell
+    print('Superuser already exists')
+EOF

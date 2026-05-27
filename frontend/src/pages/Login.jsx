@@ -61,7 +61,7 @@ export default function Login() {
                 otp: form.otp
             });
 
-            localStorage.setItem("chopchop-token", res.data.token);
+            localStorage.setItem("chopchop-token", res.data.access);
             await fetchUser();
             alert("✅ Logged in via OTP!");
             navigate("/");
