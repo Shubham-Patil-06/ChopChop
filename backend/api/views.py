@@ -251,6 +251,18 @@ class SendOTPView(generics.GenericAPIView):
             user.set_unusable_password()
             user.save()
 
+        # Fail fast if email is not configured — avoids blocking the worker on SMTP
+        if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+            if settings.DEBUG:
+                # Dev convenience: skip sending, return the OTP directly
+                otp_code = str(random.randint(100000, 999999))
+                OTP.objects.update_or_create(user=user, defaults={"code": otp_code, "phone": ""})
+                return Response({"message": "OTP sent (dev mode — email not configured).", "otp": otp_code}, status=200)
+            return Response(
+                {"error": "Email service is not configured. Please contact support."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
         otp_code = str(random.randint(100000, 999999))
         OTP.objects.update_or_create(
             user=user,
@@ -264,13 +276,10 @@ class SendOTPView(generics.GenericAPIView):
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[email],
             )
-        except Exception as e:
-            # Email sending failed — still return the OTP in dev, fail cleanly in prod
-            if settings.DEBUG:
-                return Response({"message": "OTP sent (dev mode).", "otp": otp_code}, status=200)
+        except Exception:
             return Response(
                 {"error": "Failed to send OTP email. Please try again later."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
         return Response({"message": "OTP sent successfully."}, status=200)
