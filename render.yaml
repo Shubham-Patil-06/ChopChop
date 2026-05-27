@@ -1,8 +1,7 @@
-# Exported from Render on 2025-04-18T13:23:00Z
 databases:
-- name: chopchop_user
-  databaseName: chopchop_db_gzo1
-  user: chopchop_db_gzo1_user
+- name: chopchop-db
+  databaseName: chopchop_db_osmo
+  user: chopchop_db_osmo_user
   plan: free
   region: virginia
   ipAllowList:
