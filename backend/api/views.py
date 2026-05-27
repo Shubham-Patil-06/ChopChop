@@ -13,6 +13,7 @@ import random
 import razorpay
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
+import resend
 from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
@@ -251,31 +252,31 @@ class SendOTPView(generics.GenericAPIView):
             user.set_unusable_password()
             user.save()
 
-        # Fail fast if email is not configured — avoids blocking the worker on SMTP
-        if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-            if settings.DEBUG:
-                # Dev convenience: skip sending, return the OTP directly
-                otp_code = str(random.randint(100000, 999999))
-                OTP.objects.update_or_create(user=user, defaults={"code": otp_code, "phone": ""})
-                return Response({"message": "OTP sent (dev mode — email not configured).", "otp": otp_code}, status=200)
-            return Response(
-                {"error": "Email service is not configured. Please contact support."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
-
         otp_code = str(random.randint(100000, 999999))
         OTP.objects.update_or_create(
             user=user,
             defaults={"code": otp_code, "phone": ""}
         )
 
-        try:
-            send_mail(
-                subject="Your ChopChop OTP",
-                message=f"Your OTP is: {otp_code}\n\nThis OTP expires in 5 minutes.",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
+        resend_api_key = getattr(settings, "RESEND_API_KEY", "")
+
+        if not resend_api_key:
+            # No email service configured — return OTP in dev, fail cleanly in prod
+            if settings.DEBUG:
+                return Response({"message": "OTP sent (dev mode — email not configured).", "otp": otp_code}, status=200)
+            return Response(
+                {"error": "Email service is not configured. Please contact support."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+
+        try:
+            resend.api_key = resend_api_key
+            resend.Emails.send({
+                "from": getattr(settings, "RESEND_FROM_EMAIL", "noreply@chopchop.app"),
+                "to": [email],
+                "subject": "Your ChopChop OTP",
+                "text": f"Your OTP is: {otp_code}\n\nThis OTP expires in 5 minutes.",
+            })
         except Exception:
             return Response(
                 {"error": "Failed to send OTP email. Please try again later."},

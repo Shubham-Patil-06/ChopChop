@@ -115,12 +115,8 @@ SIMPLE_JWT = {
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
 
-# Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_TIMEOUT = 10  # seconds — prevents gunicorn worker from hanging on SMTP connect
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# Email — using Resend (resend.com) for reliable transactional email
+# Sign up free at resend.com, create an API key, set RESEND_API_KEY on Render
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+# From address: must be a verified domain in Resend, OR use onboarding@resend.dev for testing
+RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev")
