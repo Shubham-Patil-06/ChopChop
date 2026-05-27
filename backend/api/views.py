@@ -257,12 +257,21 @@ class SendOTPView(generics.GenericAPIView):
             defaults={"code": otp_code, "phone": ""}
         )
 
-        send_mail(
-            subject="Your ChopChop OTP",
-            message=f"Your OTP is: {otp_code}\n\nThis OTP expires in 5 minutes.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-        )
+        try:
+            send_mail(
+                subject="Your ChopChop OTP",
+                message=f"Your OTP is: {otp_code}\n\nThis OTP expires in 5 minutes.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+            )
+        except Exception as e:
+            # Email sending failed — still return the OTP in dev, fail cleanly in prod
+            if settings.DEBUG:
+                return Response({"message": "OTP sent (dev mode).", "otp": otp_code}, status=200)
+            return Response(
+                {"error": "Failed to send OTP email. Please try again later."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
 
         return Response({"message": "OTP sent successfully."}, status=200)
 
