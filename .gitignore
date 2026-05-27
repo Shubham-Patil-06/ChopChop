@@ -12,3 +12,9 @@ dist/
 .env
 frontend/.env
 backend/.env
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
