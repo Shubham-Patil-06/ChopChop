@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://chopchop-backend.onrender.com/api/",
+  baseURL: import.meta.env.VITE_API_URL || "https://chopchop-0ixd.onrender.com/api/",
 });
 
 API.interceptors.request.use((req) => {
